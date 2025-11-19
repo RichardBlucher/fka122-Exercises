@@ -176,8 +176,39 @@ int main()
         printf(" %f %f %f %f\n", i*timestep, pot_energy, kin_energy, tot_energy);
 
     }
+    double *positions_1 = malloc(steps * sizeof(double));
+    double *positions_2 = malloc(steps * sizeof(double));
+    double *positions_3 = malloc(steps * sizeof(double));
+    for(unsigned int i = 0; i < steps; i++){
+        positions_1[i] = values_time[i][0];
+        positions_2[i] = values_time[i][1];
+        positions_3[i] = values_time[i][2];
+
+    }
+    double *freqs_1 = malloc(steps * sizeof(double));
+    double *freqs_2 = malloc(steps * sizeof(double));
+    double *freqs_3 = malloc(steps * sizeof(double));
+    double *freqs = malloc(steps * sizeof(double));
+    powerspectrum(freqs_1, positions_1, steps, timestep);
+    powerspectrum(freqs_2, positions_2, steps, timestep);
+    powerspectrum(freqs_3, positions_3, steps, timestep);
+    fft_freq(freqs, steps, timestep);
+    
 
     FILE *file_ptr;
+    file_ptr = fopen("power.csv", "w");
+    if (file_ptr == NULL) {
+        perror("Error opening file");
+        return 1;
+    }
+    for(unsigned int i = 0; i < steps; i++){
+        fprintf(file_ptr, "%f,%f,%f,%f\n",freqs[i],
+                freqs_1[i], freqs_2[i], freqs_3[i]);
+    }
+    fclose(file_ptr);
+
+    return 0;
+
     file_ptr = fopen("data.csv", "w");
     if (file_ptr == NULL) {
         perror("Error opening file");
