@@ -1,0 +1,59 @@
+/**
+ * Calculate the acceleration.
+ *
+ *
+ * Parameters
+ * ----------
+ *  accelerations - Vector where accelerations are to be written
+ *  positions - Vector of positions
+ *  alpha - Anharmonicity constant
+ *  N - Number of atoms
+ *
+*/
+void calculate_acceleration(double *accelerations, double *positions, double alpha, const unsigned int N)
+{
+    // Write to the accelerations vector
+    accelerations[0] = positions[1]-2*positions[0]+alpha*((positions[1]-positions[0])*(positions[1]-positions[0])-positions[0]*positions[0]);
+    accelerations[N-1] = positions[N-2]-2*positions[N-1]+alpha*(-(positions[N-1]-positions[N-2])*(positions[N-1]-positions[N-2])+positions[N-1]*positions[N-1]);
+
+    double simple_part = 0;
+    double complex_part = 0;
+    for (unsigned int i = 1; i<N-1; i++){
+        simple_part = positions[i+1] - 2*positions[i] + positions[i-1];
+        complex_part = alpha * ((positions[i+1]-positions[i])*(positions[i+1]-positions[i])-
+                                (positions[i]-positions[i-1])*(positions[i]-positions[i-1]));
+        accelerations[i] = simple_part + complex_part;
+    }
+
+
+}
+
+/**
+ * Perform one velocity Verlet step
+ *
+ * Parameters
+ * ----------
+ *  accelerations - Vector of accelerations
+ *  positions - Vector of positions
+ *  velocities - Vector of velocities
+ *  alpha - Anharmonicity constant
+ *  timestep - Time step
+ *  N - Number of atoms
+ *
+*/
+void velocity_verlet_one_step(double *accelerations, double *positions, double *velocities,
+                              double alpha, double timestep, const unsigned int N)
+{
+    // Write to accelerations, positions and velocities vectors
+    
+    for(unsigned int i = 0; i < N; i++) {
+
+        velocities[i] += 0.5 * accelerations[i] * timestep;
+        positions[i] += velocities[i] * timestep;
+       
+    }
+    calculate_acceleration(accelerations, positions, alpha, N);
+    for(unsigned int i = 0; i < N; i++) {
+        velocities[i] += 0.5 * accelerations[i] * timestep;
+    }
+}
