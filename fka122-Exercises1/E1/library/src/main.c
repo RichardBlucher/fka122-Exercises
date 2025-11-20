@@ -130,7 +130,7 @@ int main()
     const double kappa = 99.864;
     const double timestep = 0.0001;
     const unsigned int N = 3;
-    const unsigned int steps = 5000;
+    const unsigned int steps = 500000;
 
     //initialize positions
     double *positions = malloc(N * sizeof(double));
@@ -207,7 +207,6 @@ int main()
     }
     fclose(file_ptr);
 
-    return 0;
 
     file_ptr = fopen("data.csv", "w");
     if (file_ptr == NULL) {
