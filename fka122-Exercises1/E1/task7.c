@@ -29,9 +29,9 @@ void matrix_vector_multiplication(double *result, double **A, double *b, unsigne
 void transform_to_normal_modes(double *positions, double *Q, const unsigned int N)
 {
     for(unsigned int k = 0; k < N; k++) {
-        //Q[k] = 0;
+        Q[k] = 0;
         for(unsigned int i = 0; i < N; i++) {
-            Q[k] +=  positions[i]*sin((M_PI*i*k)/(N+1));
+            Q[k] +=  positions[i]*sin((M_PI*(i+1)*(k+1))/(N+1));
         }
         Q[k] *= sqrt(2.0/(N+1));
     }
@@ -61,7 +61,7 @@ void calculate_normal_mode_energies(double *energies, double *positions, double 
     transform_to_normal_modes(velocities, P, N);
 
     for(unsigned int k=0; k<N;k++){
-        double omega = 2 * sin((k*M_PI)/(2*(N+1)));
+        double omega = 2 * sin(((k+1)*M_PI)/(2*(N+1)));
         energies[k] = 0.5 * (P[k]*P[k] + omega*omega*Q[k]*Q[k]);
     }
 }
