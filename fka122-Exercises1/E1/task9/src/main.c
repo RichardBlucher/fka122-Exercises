@@ -176,8 +176,10 @@ int main()
     //const double kappa = 99.864;
     const double timestep = 0.1;
     const unsigned int N = 32;
-    const unsigned int steps = 250000;
+    const unsigned int T_max = 25000;
+    unsigned int steps = T_max/timestep;
     const double alpha = 0.1;
+    printf("%d \n", steps);
 
     //initialize positions
     double *positions = (double*)calloc(N ,sizeof(double));
@@ -186,7 +188,7 @@ int main()
     //initialize velocities
     double *velocities = (double*)calloc(N,sizeof(double));
     double *P = (double*)calloc(N,sizeof(double));
-    P[0] = sqrt(2);
+    P[0] = sqrt(2*32);
     transform_to_normal_modes(P, velocities, N);
     
 

@@ -199,7 +199,7 @@ int main()
     const double timestep = 0.1;
     const unsigned int N = 32;
     const unsigned int steps = 100000000;
-    const double alpha = 0.01;
+    const double alpha = 0.1;
     const int time_saves = 100000;
 
     //initialize positions
@@ -209,8 +209,11 @@ int main()
     //initialize velocities
     double *velocities = (double*)calloc(N,sizeof(double));
     double *P = (double*)calloc(N,sizeof(double));
-    P[0] = sqrt(2);
+    P[0] = sqrt(2*32);
     transform_to_normal_modes(P, velocities, N);
+    for(unsigned int i = 0; i<N;i++){
+        printf("%f \n", velocities[i]);
+    }
     
 
     //initialize masses
@@ -267,7 +270,7 @@ int main()
     }
     printf("Total energy: %f\n", total_energy);
     printf("Initial energy: 1\n");
-    save_2d_csv("cumulative_energy_task10_alpha0.csv",
+    save_2d_csv("cumulative_energy_task10_alpha1.csv",
                    cumulative_integration_normal_energy,
                    N,
                    time_saves);

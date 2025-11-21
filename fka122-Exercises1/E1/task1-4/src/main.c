@@ -158,6 +158,9 @@ int main()
     double tot_energy = 0;
 
     double **values_time = create_2D_array(steps,2* N);
+    double *pot_energy_time = (double*)calloc(steps, sizeof(double));
+    double *kin_energy_time = (double*)calloc(steps, sizeof(double));
+    double *tot_energy_time = (double*)calloc(steps, sizeof(double));
 
     for(unsigned int i = 0; i < steps; i++){
         velocity_verlet_one_step(accelarations, positions, velocities,
@@ -174,6 +177,9 @@ int main()
         tot_energy = pot_energy + kin_energy;
 
         printf(" %f %f %f %f\n", i*timestep, pot_energy, kin_energy, tot_energy);
+        pot_energy_time[i] = pot_energy;
+        kin_energy_time[i] = kin_energy;
+        tot_energy_time[i] = tot_energy;
 
     }
     double *positions_1 = malloc(steps * sizeof(double));
@@ -204,6 +210,17 @@ int main()
     for(unsigned int i = 0; i < steps; i++){
         fprintf(file_ptr, "%f,%f,%f,%f\n",freqs[i],
                 freqs_1[i], freqs_2[i], freqs_3[i]);
+    }
+    fclose(file_ptr);
+
+    file_ptr = fopen("energies.csv", "w");
+    if (file_ptr == NULL) {
+        perror("Error opening file");
+        return 1;
+    }
+    for(unsigned int i = 0; i < steps; i++){
+        fprintf(file_ptr, "%f,%f,%f\n",pot_energy_time[i],
+                kin_energy_time[i], tot_energy_time[i]);
     }
     fclose(file_ptr);
 
