@@ -22,6 +22,8 @@ void velocity_verlet_one_step(double *accelerations, double *positions, double *
     }
 }
 
+void task1()
+
 
 
 int
