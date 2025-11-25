@@ -8,13 +8,23 @@ CFLAGS = \
 	 -Werror \
 	 -Wall \
 	 -Iinclude \
-	 -Wl,-rpath,${LOCAL} \
+	 -Wl,-rpath,${LOCAL}/lib \
 	 -I${LOCAL}/include \
 	 -Wl,-rpath,${LIBDIR}\
 	 -L${LIBDIR} \
 	 -L${LOCAL}/lib \
 	 -Isrc/nepc/
 
+#CFLAGS = \
+	 -pedantic \
+	 -Wall \
+	 -Werror \
+	 -g \
+	 -Iinclude \
+	 -MMD \
+	 -Wl,-rpath,${LOCAL}/lib \
+	 -L${LOCAL}/lib \
+	 -I${LOCAL}/include
 
 
 CFLAGS_OPT = \
