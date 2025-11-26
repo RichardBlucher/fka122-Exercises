@@ -195,7 +195,7 @@ void task2(int n_atoms,int N, double simulation_mass)
         temperature /= 8.617333262145e-5; //convert eV to Kelvin
         printf("Average temperature: %.2f K\n", temperature);
 
-        snprintf(filename, sizeof(filename), "output_%d.csv", time_step);
+        snprintf(filename, sizeof(filename), "2_output_%d_2.csv", time_step);
 
         save_2d_csv(filename,
                     energies_time,
@@ -213,7 +213,112 @@ void task2(int n_atoms,int N, double simulation_mass)
     }
 }
 
+void task2_b(int n_atoms,int N, double simulation_mass)
+{
+    // Write your code here
+    double lattice_constant = 4.03;
+    double total_time = 100;
+    char filename[256];
 
+
+    double timestep = 0.01;
+
+    for(unsigned int time_step = 0; time_step < 4; time_step++){
+        timestep -= 0.002;
+        printf("Running simulation with timestep: %.10f\n", timestep);
+
+        unsigned int n_steps = (unsigned int)(total_time / timestep);
+        printf("Creating fcc lattice with %i atoms\n", n_atoms);
+
+        double **positions = create_2D_array(n_atoms, 3);
+
+        printf("Initializing fcc lattice\n");
+
+        init_fcc(positions, N, lattice_constant);
+
+        //perturb all positions by +- 0.065 from uniform random distribution
+        const gsl_rng_type * T;
+        gsl_rng * r;
+
+
+        gsl_rng_env_setup();
+
+        T = gsl_rng_default;
+        r = gsl_rng_alloc(T);
+
+        // typically the seed is set to the current time.
+        //time_t seed = time(NULL);
+        int seed = 42;
+        gsl_rng_set(r, seed); 
+        for(unsigned int i = 0; i < n_atoms; i++){
+            for(unsigned int j = 0; j < 3; j++){
+                double rand_perturb = (gsl_rng_uniform(r) * 2 - 1) * 0.065 * lattice_constant;
+                positions[i][j] += rand_perturb;
+            }
+        }
+        double **velocities = create_2D_array(n_atoms, 3);
+        double **forces = create_2D_array(n_atoms, 3);
+        //initialize velocities to zero
+        for(unsigned int i = 0; i < n_atoms; i++){
+            for(unsigned int j = 0; j < 3; j++){
+                velocities[i][j] = 0.0;
+            }
+        }  
+        //get initial forces
+        get_forces_AL(forces, positions, N*lattice_constant, n_atoms);
+        double **energies_time = create_2D_array(n_steps, 4);
+        for(unsigned int step = 0; step < n_steps; step++){
+            velocity_verlet_one_step(forces, positions, velocities, simulation_mass, timestep, n_atoms, N*lattice_constant);
+            double potential = get_energy_AL(positions, N * lattice_constant, n_atoms);
+            double kinetic = 0;
+            for(unsigned int i = 0; i < n_atoms; i++){
+                kinetic += 0.5 * simulation_mass * (velocities[i][0]*velocities[i][0] +
+                                                    velocities[i][1]*velocities[i][1] +
+                                                    velocities[i][2]*velocities[i][2]);  
+            
+            }
+            energies_time[step][0] = step * timestep;
+            energies_time[step][1] = potential;
+            energies_time[step][2] = kinetic;
+            energies_time[step][3] = potential + kinetic;
+
+            if(step % (int)pow(10,time_step) == 0){
+                printf("Step: %i Time: %.3f Potential: %.10f Kinetic: %.10f Total: %.10f\n",
+                        step, step * timestep, potential, kinetic, potential + kinetic);
+            }
+
+            //printf("Step: %i Time: %.3f Potential: %.10f Kinetic: %.10f Total: %.10f\n",
+                //     step, step * timestep, potential, kinetic, potential + kinetic);
+            
+            
+        }
+        //calculate temperature
+        double temperature = 0.0;
+        for(unsigned int step = 0; step < n_steps; step++){
+            double kinetic = energies_time[step][2];
+            temperature += (2.0 / 3.0) * (kinetic / n_atoms);
+        }
+        temperature /= n_steps;
+        temperature /= 8.617333262145e-5; //convert eV to Kelvin
+        printf("Average temperature: %.2f K\n", temperature);
+
+        snprintf(filename, sizeof(filename), "2b_output_%d.csv", time_step);
+
+        save_2d_csv(filename,
+                    energies_time,
+                    n_steps,
+                    4);
+        gsl_rng_free(r);
+        destroy_2D_array(energies_time, n_steps);
+        destroy_2D_array(forces, n_atoms);
+        destroy_2D_array(velocities, n_atoms);
+
+
+
+
+        destroy_2D_array(positions, n_atoms);
+    }
+}
 
 int
 run(
@@ -231,7 +336,9 @@ run(
     double simulation_mass = atomic_mass / 9649.0;
 
     //task1(n_atoms, N);
-    task2(n_atoms, N, simulation_mass);
+    //task2(n_atoms, N, simulation_mass);
+    task2_b(n_atoms, N, simulation_mass);
+
 
 
 
