@@ -110,7 +110,7 @@ void task2(int n_atoms,int N, double simulation_mass)
 {
     // Write your code here
     double lattice_constant = 4.03;
-    double total_time = 10;
+    double total_time = 100;
     char filename[256];
 
 
