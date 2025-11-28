@@ -68,7 +68,8 @@ double thermometer(double ** velocities, double mass, double boltzmann, int n_at
         temp += velocities[i][1]*velocities[i][1];
         temp += velocities[i][2]*velocities[i][2];
     }
-    temp /= (3*n_atoms*mass*boltzmann);
+    temp /= (3*n_atoms*boltzmann);
+    temp *= mass;
 
     return temp;
 }
@@ -78,11 +79,26 @@ double barometer(double ** positions, double temp, double boltzmann, double n_at
     double virial = get_virial_AL(positions, cell_lenght, n_atoms);
     pressure = n_atoms * boltzmann * temp + virial;
     pressure /= (cell_lenght*cell_lenght*cell_lenght);
+    pressure *= 160.21766208; //convert to GPa
     return pressure;
 }
 
 void thermostat(double ** velocities, double target_temp, double temp, double decay_time, double timestep, int n_atoms){
-    
+    double alpha = 1 + (2 * timestep * (target_temp-temp))/(decay_time * temp);
+    for(unsigned int i = 0; i< n_atoms; i++){
+        velocities[i][0] *=sqrt(alpha);
+        velocities[i][1] *=sqrt(alpha);
+        velocities[i][2] *=sqrt(alpha);
+    }
+}
+
+void barostat(double ** positions, double decay_time, double timestep, double target_pressure, double iso_comp, double pressure, int n_atoms){
+    double alpha = 1 - (iso_comp * timestep * (target_pressure - pressure))/decay_time;
+    for (unsigned int i = 0; i<n_atoms; i++){
+        positions[i][0] *=pow(alpha, 1.0/3.0);
+        positions[i][1] *=pow(alpha, 1.0/3.0);
+        positions[i][2] *=pow(alpha, 1.0/3.0);
+    }
 }
 
 void task1(int n_atoms, int N)
@@ -347,13 +363,13 @@ void task2_b(int n_atoms,int N, double simulation_mass)
 void task3(int n_atoms,int N, double simulation_mass){
     const double iso_compress = 0.01385; //GPa^-1 at 300K
     const double target_temp = 500.0 + 273.15; //Kelvin
-    const double temp_tol = 0.1;
     const double target_pressure = 0.0001; // GPa
-    const double pressure_tol = 0.00000001;
     const double boltzmann = 8.617333262145e-5; //eV
+    const double temp_delay_time = 1.0;
+    const double pressure_delay_time = 1.0;
 
     double lattice_constant = 4.03;
-    double total_time = 100;
+    double total_time = 15;
     char filename[256];
 
 
@@ -391,6 +407,7 @@ void task3(int n_atoms,int N, double simulation_mass){
             positions[i][j] += rand_perturb;
         }
     }
+    
     double **velocities = create_2D_array(n_atoms, 3);
     double **forces = create_2D_array(n_atoms, 3);
     //initialize velocities to zero
@@ -402,25 +419,56 @@ void task3(int n_atoms,int N, double simulation_mass){
     
     double temp = thermometer(velocities, simulation_mass, boltzmann, n_atoms);
     double pressure = barometer(positions, temp, boltzmann, n_atoms, N*lattice_constant);
-    
+    double avgDiff = N * lattice_constant;
     //get initial forces
     get_forces_AL(forces, positions, N*lattice_constant, n_atoms);
     double **energies_time = create_2D_array(n_steps, 4);
     for(unsigned int step = 0; step < n_steps; step++){
-        velocity_verlet_one_step(forces, positions, velocities, simulation_mass, timestep, n_atoms, N*lattice_constant);
+
+
+        velocity_verlet_one_step(forces, positions, velocities, simulation_mass, timestep, n_atoms, avgDiff);
         temp = thermometer(velocities, simulation_mass, boltzmann, n_atoms);
-        pressure = barometer(positions, temp, boltzmann, n_atoms, N*lattice_constant);
+        pressure = barometer(positions, temp, boltzmann, n_atoms, avgDiff);
 
         //Equilibration
+        thermostat(velocities, target_temp, temp, temp_delay_time, timestep, n_atoms);
+        barostat(positions, pressure_delay_time, timestep, target_pressure, iso_compress, pressure, n_atoms);
 
+        double minVals[3], maxVals[3];
+    double diff[3];
+    
+    // Initialize min/max with the first row
+    for (int col = 0; col < 3; col++) {
+        minVals[col] = positions[0][col];
+        maxVals[col] = positions[0][col];
+    }
+
+    // Scan remaining rows
+    for (int i = 1; i < 256; i++) {
+        for (int col = 0; col < 3; col++) {
+            double val = positions[i][col];
+            if (val < minVals[col]) minVals[col] = val;
+            if (val > maxVals[col]) maxVals[col] = val;
+        }
+    }
+
+    // Compute differences for each column
+    for (int col = 0; col < 3; col++) {
+        diff[col] = maxVals[col] - minVals[col];
+    }
+
+    // Compute the average difference
+    avgDiff = (diff[0] + diff[1] + diff[2]) / 3.0;
+
+    // Debug prints (optional)
+    //printf("Diffs: %f, %f, %f\n", diff[0], diff[1], diff[2]);
+    //printf("Average diff: %f\n", avgDiff);
 
 
         double potential = get_energy_AL(positions, N * lattice_constant, n_atoms);
         double kinetic = 0;
         for(unsigned int i = 0; i < n_atoms; i++){
-            kinetic += 0.5 * simulation_mass * (velocities[i][0]*velocities[i][0] +
-                                                velocities[i][1]*velocities[i][1] +
-                                                velocities[i][2]*velocities[i][2]);  
+            kinetic += 0.5 * (velocities[i][0]*velocities[i][0] + velocities[i][1]*velocities[i][1] + velocities[i][2]*velocities[i][2]) * simulation_mass;  
         
         }
         energies_time[step][0] = step * timestep;
@@ -432,8 +480,8 @@ void task3(int n_atoms,int N, double simulation_mass){
         //printf("Step: %i Time: %.3f Potential: %.10f Kinetic: %.10f Total: %.10f\n", step, step * timestep, potential, kinetic, potential + kinetic);
         
 
-        //printf("Step: %i Time: %.3f Potential: %.10f Kinetic: %.10f Total: %.10f\n",
-            //     step, step * timestep, potential, kinetic, potential + kinetic);
+        printf("Step: %i Time: %.3f Kinetic: %f Temperature: %f Pressure %f Total: %.10f\n",
+                 step, step * timestep, kinetic, temp , pressure , potential + kinetic);
             
             
     }
@@ -453,7 +501,7 @@ void task3(int n_atoms,int N, double simulation_mass){
                 energies_time,
                 n_steps,
                 4);
-    gsl_rng_free(r);
+    //gsl_rng_free(r);
     destroy_2D_array(energies_time, n_steps);
     destroy_2D_array(forces, n_atoms);
     destroy_2D_array(velocities, n_atoms);
@@ -482,7 +530,9 @@ run(
 
     //task1(n_atoms, N);
     //task2(n_atoms, N, simulation_mass);
-    task2_b(n_atoms, N, simulation_mass);
+    //task2_b(n_atoms, N, simulation_mass);
+    task3(n_atoms, N, simulation_mass);
+    
 
 
 
