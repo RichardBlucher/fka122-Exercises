@@ -530,7 +530,7 @@ void task4(int n_atoms,int N, double simulation_mass){
     const double pressure_delay_time = 0.1;
 
     double lattice_constant = 4.03;
-    double total_time = 30;
+    double total_time = 500;
     char filename[256];
 
 
@@ -672,7 +672,7 @@ void task5a(int n_atoms,int N, double simulation_mass){
     const double pressure_delay_time = 0.1;
 
     double lattice_constant = 4.03;
-    double total_time = 150;
+    double total_time = 500;
     char filename[256];
 
 
@@ -826,7 +826,7 @@ void task5b(int n_atoms,int N, double simulation_mass){
     const double pressure_delay_time = 0.1;
 
     double lattice_constant = 4.03;
-    double total_time = 150;
+    double total_time = 500;
     char filename[256];
 
 
@@ -986,13 +986,13 @@ run(
     const double atomic_mass = 26.9815; 
     double simulation_mass = atomic_mass / 9649.0;
 
-    //task1(n_atoms, N);
-    //task2(n_atoms, N, simulation_mass);
-    //task2_b(n_atoms, N, simulation_mass);
+    task1(n_atoms, N);
+    task2(n_atoms, N, simulation_mass);
+    task2_b(n_atoms, N, simulation_mass);
     task3(n_atoms, N, simulation_mass);
     task4(n_atoms, N, simulation_mass);
-    //task5a(n_atoms, N, simulation_mass);
-    //task5b(n_atoms, N, simulation_mass);
+    task5a(n_atoms, N, simulation_mass);
+    task5b(n_atoms, N, simulation_mass);
 
 
 
