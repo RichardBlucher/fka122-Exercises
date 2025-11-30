@@ -51652,3 +51652,7 @@ Running simulation with timestep: 0.0050000000
 Creating fcc lattice with 256 atoms
 Initializing fcc lattice
 Average temperature: 933.71 K
+Running simulation with timestep: 0.0050000000
+Creating fcc lattice with 256 atoms
+Initializing fcc lattice
+meltedAverage temperature: 1250.16 K
