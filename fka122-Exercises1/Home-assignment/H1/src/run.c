@@ -744,10 +744,10 @@ void task4_melt(int n_atoms,int N, double simulation_mass){
             simulation_values[step][4 + i*3 + 2] = positions[i][2];
         }
 
-        if((temp > 1500) && (step > 1000)){
+        /*if((temp > 1500) && (step > 1000)){
             target_temp = 700.0 + 273.15;
             printf("melted");
-        }
+        }*/
         velocity_verlet_one_step(forces, positions, velocities, simulation_mass, timestep, n_atoms, N*lattice_constant);
         temp = thermometer(velocities, simulation_mass, boltzmann, n_atoms);
         pressure = barometer(positions, temp, boltzmann, n_atoms, N*lattice_constant);
@@ -773,8 +773,8 @@ void task4_melt(int n_atoms,int N, double simulation_mass){
         //printf("Step: %i Time: %.3f Potential: %.10f Kinetic: %.10f Total: %.10f\n", step, step * timestep, potential, kinetic, potential + kinetic);
         
 
-        //printf("Step: %i Time: %.3f Kinetic: %f Temperature: %f Pressure %f Lattice constant %f Total: %.10f\n",
-        //         step, step * timestep, kinetic, temp , pressure,lattice_constant , potential + kinetic);
+        printf("Step: %i Time: %.3f Kinetic: %f Temperature: %f Pressure %f Lattice constant %f Total: %.10f\n",
+                 step, step * timestep, kinetic, temp , pressure,lattice_constant , potential + kinetic);
             
             
     }
@@ -788,7 +788,7 @@ void task4_melt(int n_atoms,int N, double simulation_mass){
     temperature /= 8.617333262145e-5; //convert eV to Kelvin
     printf("Average temperature: %.2f K\n", temperature);
 
-    snprintf(filename, sizeof(filename), "task4_melt_simulation_values.csv");
+    snprintf(filename, sizeof(filename), "task4_high_simulation_values.csv");
 
     save_2d_csv(filename,
                 simulation_values,
