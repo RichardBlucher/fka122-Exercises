@@ -4,24 +4,19 @@
 #include <stdlib.h>
 #include <math.h>
 #include "tools.h"
-
-
-#include <stdlib.h>
-#include <math.h>
 #include <gsl/gsl_rng.h>
-#include "attempt.h"
 
 #define PI 3.141592653589
 
 /*
  * The following struct is defined in the header file
  * Use it to store the result
-
+ */
 typedef struct {
     double integral;
     double error;
 } result_t;
- */
+
 
 
 /* **********************************************
@@ -63,12 +58,6 @@ result_t MC_without_importance_sampling(int N, gsl_rng *k)
     return result;
 }
 
-#include <stdlib.h>
-#include <math.h>
-#include <gsl/gsl_rng.h>
-#include "attempt.h"
-
-#define PI 3.141592653589
 
 /*
  * The following struct is defined in the header file
@@ -151,5 +140,63 @@ int save_2d_csv(const char *filename, double **data,
 
 int main()
 {
+    char filename[256];
+
+    int max_N_sample_exp = 4;
+    int N_samples = 0;
+
+    double** results_wo_importance = create_2D_array(max_N_sample_exp, 3);
+    double** results_w_importance = create_2D_array(max_N_sample_exp, 3);
+
+    // GSL random number generator object set up 
+    const gsl_rng_type * T;
+    gsl_rng * r;
+
+
+    gsl_rng_env_setup();
+
+    T = gsl_rng_default;
+    r = gsl_rng_alloc(T);
+
+    // typically the seed is set to the current time.
+    //time_t seed = time(NULL);
+    int seed = 42;
+    gsl_rng_set(r, seed); 
+
+    // loop for every different number of samples
+    for(int i = 0; i<max_N_sample_exp; i++){
+        N_samples = pow(10, i+1);
+
+        result_t result_wo_importance = MC_without_importance_sampling(N_samples, r);
+        result_t result_w_importance = MC_with_importance_sampling(N_samples, r);
+
+        results_wo_importance[i][0] = N_samples;
+        results_wo_importance[i][1] = result_wo_importance.integral;
+        results_wo_importance[i][2] = result_wo_importance.error;
+
+        results_w_importance[i][0] = N_samples;
+        results_w_importance[i][1] = result_w_importance.integral;
+        results_w_importance[i][2] = result_w_importance.error;
+
+
+
+
+    }
+
+    snprintf(filename, sizeof(filename), "results_wo_importance.csv");
+
+    save_2d_csv(filename,
+                results_wo_importance,
+                max_N_sample_exp,
+                3);
+
+
+    snprintf(filename, sizeof(filename), "results_w_importance.csv");
+
+    save_2d_csv(filename,
+                results_w_importance,
+                max_N_sample_exp,
+                3);
+
     return 0;
 }
