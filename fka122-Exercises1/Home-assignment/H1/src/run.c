@@ -397,7 +397,7 @@ void task3(int n_atoms,int N, double simulation_mass){
     const double pressure_delay_time = 0.1;
 
     double lattice_constant = 4.03;
-    double total_time = 150;
+    double total_time = 500;
     char filename[256];
 
 
@@ -1141,7 +1141,7 @@ void task6(int n_atoms,int N, double simulation_mass){
     const double pressure_delay_time = 0.1;
 
     double lattice_constant = 4.03;
-    double total_time = 50;
+    double total_time = 500;
     char filename[256];
 
 
@@ -1189,7 +1189,7 @@ void task6(int n_atoms,int N, double simulation_mass){
     gsl_rng_set(r, seed); 
     for(unsigned int i = 0; i < n_atoms; i++){
         for(unsigned int j = 0; j < 3; j++){
-            double rand_perturb = (gsl_rng_uniform(r) * 2 - 1) * 0.085 * lattice_constant;
+            double rand_perturb = (gsl_rng_uniform(r) * 2 - 1) * 0.065 * lattice_constant;
             positions[i][j] += rand_perturb;
         }
     }
@@ -1210,9 +1210,9 @@ void task6(int n_atoms,int N, double simulation_mass){
     //get initial forces
     get_forces_AL(forces, positions, N*lattice_constant, n_atoms);
 
-    int sample_rate = 20;   
-    int sample_idx = 0;
-    double **simulation_values = create_2D_array(n_steps/sample_rate, 2);
+    //int sample_rate = 20;   
+    //int sample_idx = 0;
+    double **simulation_values = create_2D_array(n_steps, 2+n_atoms*3);
     double** initial_velocities = create_2D_array(n_atoms, 3);
 
     double **energies_time = create_2D_array(n_steps, 4);
@@ -1243,11 +1243,16 @@ void task6(int n_atoms,int N, double simulation_mass){
                 }
             }
         }
-        if(step%sample_rate == 0){
-            simulation_values[sample_idx][0] = step * timestep;
-            simulation_values[sample_idx][1] = velocity_correlation(velocities, initial_velocities, n_atoms);
-            sample_idx ++;
+        
+        simulation_values[step][0] = step * timestep;
+        simulation_values[step][1] = velocity_correlation(velocities, initial_velocities, n_atoms);
+        for(unsigned int i = 0; i<n_atoms;i++){
+            for(unsigned int j = 0; j<3; j++){
+                simulation_values[step][2 + i*3 + j] = velocities[i][j];
+            }
         }
+        
+        
 
         if((temp > 1500) && (step>1000)){
             target_temp = target_temp2;
@@ -1292,8 +1297,8 @@ void task6(int n_atoms,int N, double simulation_mass){
 
     save_2d_csv(filename,
                 simulation_values,
-                n_steps/sample_rate,
-                2);
+                n_steps,
+                2+n_atoms*3);
     //gsl_rng_free(r);
     destroy_2D_array(energies_time, n_steps);
     destroy_2D_array(forces, n_atoms);
@@ -1324,12 +1329,12 @@ run(
     //task1(n_atoms, N);
     //task2(n_atoms, N, simulation_mass);
     //task2_b(n_atoms, N, simulation_mass);
-    //task3(n_atoms, N, simulation_mass);
+    task3(n_atoms, N, simulation_mass);
     //task4(n_atoms, N, simulation_mass);
     //task4_melt(n_atoms, N, simulation_mass);
     //task5a(n_atoms, N, simulation_mass);
     //task5b(n_atoms, N, simulation_mass);
-    task6(n_atoms, N, simulation_mass);
+    //task6(n_atoms, N, simulation_mass);
     
 
 
