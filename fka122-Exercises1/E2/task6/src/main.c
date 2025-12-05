@@ -42,6 +42,20 @@ variance(
 *  lag
 *
 * ***************************************/
+double variance(
+         double *v1,
+         unsigned int len
+        )
+{
+    double avg = average(v1, len);
+    double sum = 0.;
+    for(unsigned int i = 0; i < len; i++){
+        sum += pow(v1[i]-avg, 2);
+    }
+    return sum/len;
+}
+
+
 double autocorrelation(
 			   double *data,
 			   int data_len,
@@ -140,7 +154,7 @@ int main()
     double *data = malloc(sizeof(double) * n_lines);
     for (int i = 0; i < n_lines; i++) {
         fscanf(fp, "%lf", &data[i]);
-        printf("the line %d: %f\n", i, data[i]);//test print
+        //printf("the line %d: %f\n", i, data[i]);//test print
 
     }
     printf("the data: %f\n", data[0]);//test print
@@ -148,18 +162,18 @@ int main()
     //calculate autocorrelation for different time lags
     double *autocorr_values = malloc(sizeof(double) * (n_lines/2));
     int auto_correlation_s=0;
-    for (int lag = 0; lag < 15000; lag++) {
+    for (int lag = 0; lag < 2500; lag++) {
         autocorr_values[lag] = autocorrelation(data, n_lines, lag);
-        //printf("Lag %d: Autocorrelation = %.5f\n", lag, autocorr_values[lag]);
-        if(autocorr_values[lag]-0.135 < 1e-5){
+        printf("Lag %d: Autocorrelation = %.5f\n", lag, autocorr_values[lag]);
+        if(fabs(autocorr_values[lag]-0.135) < 0.001){
             printf("The integrated autocorrelation time is approximately: %d\n", lag);
             auto_correlation_s = lag;
             break;
         }
     }
-    double block_s = block_average(data, n_lines, 10000);
+    double block_s = block_average(data, n_lines, 1000);
 
-
+    printf("block_s: %f, auto_correlation_s: %d\n", block_s, auto_correlation_s);
     //save autocorrelation to csv
     double **autocorr_2d = create_2D_array(n_lines/2, 2);
     for (int i = 0; i < 15000; i++) {
