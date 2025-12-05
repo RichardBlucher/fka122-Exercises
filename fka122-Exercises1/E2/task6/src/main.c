@@ -94,8 +94,9 @@ double block_average(double *data,
         }
         block_averages[i] = sum / block_size;
     }
-    ret = standard_deviation(block_averages, n_blocks)*standard_deviation(block_averages , n_blocks) / (standard_deviation(data, data_len)*standard_deviation(data, data_len));
-
+    double block_variance = standard_deviation(block_averages, n_blocks)*standard_deviation(block_averages , n_blocks);
+    double data_variance = standard_deviation(data, data_len)*standard_deviation(data, data_len);
+    ret = block_size*block_variance / data_variance;
     return ret;
 }
 
