@@ -125,6 +125,52 @@ int save_2d_csv(const char *filename, double **data,
 
 int main()
 {
+    //read MC.txt
+    FILE *fp = fopen("MC.txt", "r");
+    if (!fp) {
+        perror("fopen");
+        return -1;
+    }  
+    int n_lines = 0;
+    char buffer[256];
+    while (fgets(buffer, sizeof(buffer), fp)) {
+        n_lines++;
+    }
+    rewind(fp); 
+    double *data = malloc(sizeof(double) * n_lines);
+    for (int i = 0; i < n_lines; i++) {
+        fscanf(fp, "%lf", &data[i]);
+        printf("the line %d: %f\n", i, data[i]);//test print
+
+    }
+    printf("the data: %f\n", data[0]);//test print
+    fclose(fp);
+    //calculate autocorrelation for different time lags
+    double *autocorr_values = malloc(sizeof(double) * (n_lines/2));
+    int auto_correlation_s=0;
+    for (int lag = 0; lag < 15000; lag++) {
+        autocorr_values[lag] = autocorrelation(data, n_lines, lag);
+        //printf("Lag %d: Autocorrelation = %.5f\n", lag, autocorr_values[lag]);
+        if(autocorr_values[lag]-0.135 < 1e-5){
+            printf("The integrated autocorrelation time is approximately: %d\n", lag);
+            auto_correlation_s = lag;
+            break;
+        }
+    }
+    double block_s = block_average(data, n_lines, 10000);
+
+
+    //save autocorrelation to csv
+    double **autocorr_2d = create_2D_array(n_lines/2, 2);
+    for (int i = 0; i < 15000; i++) {
+        autocorr_2d[i][0] = i;
+        autocorr_2d[i][1] = autocorr_values[i];
+    }
+    save_2d_csv("autocorrelation.csv", autocorr_2d, n_lines/2, 2);
+    //free memory
+    free(data);
+    free(autocorr_values);
+    destroy_2D_array(autocorr_2d, n_lines/2);
 
     return 0;
 }
