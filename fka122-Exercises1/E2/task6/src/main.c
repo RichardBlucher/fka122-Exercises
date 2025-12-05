@@ -48,11 +48,13 @@ double variance(
         )
 {
     double avg = average(v1, len);
-    double sum = 0.;
+    double sum[len];
     for(unsigned int i = 0; i < len; i++){
-        sum += pow(v1[i]-avg, 2);
+        sum[i] = pow(v1[i], 2);
     }
-    return sum/len;
+    double avg_sq = average(sum, len);
+    return avg_sq - avg*avg;
+    
 }
 
 
@@ -63,13 +65,18 @@ double autocorrelation(
 {
     double ret = 0;
     double fi_average = average(data, data_len);
-    double new_data[data_len];
+    double *new_data = malloc(sizeof(double) * (data_len - time_lag_ind));
+    //printf("fuck %d\n", data_len-time_lag_ind);
     for(unsigned int i = 0; i < data_len - time_lag_ind; i++){
+        //printf("%d\n", i+time_lag_ind);
         new_data[i]= data[i] * data[i + time_lag_ind];
+        //printf("new_data[%d]: %f\n", i, new_data[i]);
     }
+    //printf("dumbo");
     double new_data_average = average(new_data, data_len - time_lag_ind);
-    double data_variance = standard_deviation(data, data_len);
-    ret = (new_data_average - fi_average * fi_average) / (data_variance*data_variance);
+    
+    double data_variance = variance(data, data_len);
+    ret = (new_data_average - fi_average * fi_average) / (data_variance);
 
 
     return ret;
@@ -108,8 +115,8 @@ double block_average(double *data,
         }
         block_averages[i] = sum / block_size;
     }
-    double block_variance = standard_deviation(block_averages, n_blocks)*standard_deviation(block_averages , n_blocks);
-    double data_variance = standard_deviation(data, data_len)*standard_deviation(data, data_len);
+    double block_variance = variance(block_averages, n_blocks);
+    double data_variance = variance(data, data_len);
     ret = block_size*block_variance / data_variance;
     return ret;
 }
@@ -160,11 +167,11 @@ int main()
     printf("the data: %f\n", data[0]);//test print
     fclose(fp);
     //calculate autocorrelation for different time lags
-    double *autocorr_values = malloc(sizeof(double) * (n_lines/2));
+    double *autocorr_values = malloc(sizeof(double) * n_lines);
     int auto_correlation_s=0;
-    for (int lag = 0; lag < 2500; lag++) {
+    for (int lag = 0; lag < n_lines; lag++) {
         autocorr_values[lag] = autocorrelation(data, n_lines, lag);
-        printf("Lag %d: Autocorrelation = %.5f\n", lag, autocorr_values[lag]);
+        //printf("Lag %d: Autocorrelation = %.5f\n", lag, autocorr_values[lag]);
         if(fabs(autocorr_values[lag]-0.135) < 0.001){
             printf("The integrated autocorrelation time is approximately: %d\n", lag);
             auto_correlation_s = lag;
@@ -175,12 +182,12 @@ int main()
 
     printf("block_s: %f, auto_correlation_s: %d\n", block_s, auto_correlation_s);
     //save autocorrelation to csv
-    double **autocorr_2d = create_2D_array(n_lines/2, 2);
+    double **autocorr_2d = create_2D_array(n_lines, 2);
     for (int i = 0; i < 15000; i++) {
         autocorr_2d[i][0] = i;
         autocorr_2d[i][1] = autocorr_values[i];
     }
-    save_2d_csv("autocorrelation.csv", autocorr_2d, n_lines/2, 2);
+    //save_2d_csv("autocorrelation.csv", autocorr_2d, n_lines/2, 2);
     //free memory
     free(data);
     free(autocorr_values);
