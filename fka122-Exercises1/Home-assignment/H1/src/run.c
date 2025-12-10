@@ -393,11 +393,11 @@ void task3(int n_atoms,int N, double simulation_mass){
     const double target_temp = 500.0 + 273.15; //Kelvin
     const double target_pressure = 0.0001/160.218; // eV/Å^3
     const double boltzmann = 8.617333262145e-5; //eV
-    const double temp_delay_time = 50.0;
-    const double pressure_delay_time = 0.1;
+    const double temp_delay_time = 15.0;
+    const double pressure_delay_time = 15;
 
     double lattice_constant = 4.03;
-    double total_time = 500;
+    double total_time = 500+150;
     char filename[256];
 
 
@@ -478,8 +478,12 @@ void task3(int n_atoms,int N, double simulation_mass){
         pressure = barometer(positions, temp, boltzmann, n_atoms, N*lattice_constant);
 
         //Equilibration
-        thermostat(velocities, target_temp, temp, temp_delay_time, timestep, n_atoms);
-        barostat(positions, pressure_delay_time, timestep, target_pressure, iso_compress, pressure, n_atoms, &lattice_constant);
+        if(step*timestep < (unsigned int)(150)){
+            thermostat(velocities, target_temp, temp, temp_delay_time, timestep, n_atoms);
+            barostat(positions, pressure_delay_time, timestep, target_pressure, iso_compress, pressure, n_atoms, &lattice_constant);
+        }
+        //thermostat(velocities, target_temp, temp, temp_delay_time, timestep, n_atoms);
+       // barostat(positions, pressure_delay_time, timestep, target_pressure, iso_compress, pressure, n_atoms, &lattice_constant);
        
 
 
@@ -677,11 +681,11 @@ void task4_melt(int n_atoms,int N, double simulation_mass){
     double target_temp = 1200.0 + 273.15; //Kelvin
     const double target_pressure = 0.0001/160.218; // eV/Å^3
     const double boltzmann = 8.617333262145e-5; //eV
-    const double temp_delay_time = 50.0;
-    const double pressure_delay_time = 0.1;
+    const double temp_delay_time = 15.0;
+    const double pressure_delay_time = 15.0;
 
     double lattice_constant = 4.03;
-    double total_time = 500;
+    double total_time = 500+175;
     char filename[256];
 
 
@@ -763,8 +767,10 @@ void task4_melt(int n_atoms,int N, double simulation_mass){
         pressure = barometer(positions, temp, boltzmann, n_atoms, N*lattice_constant);
 
         //Equilibration
-        thermostat(velocities, target_temp, temp, temp_delay_time, timestep, n_atoms);
-        barostat(positions, pressure_delay_time, timestep, target_pressure, iso_compress, pressure, n_atoms, &lattice_constant);
+        if(step*timestep < (unsigned int)(150)){
+            thermostat(velocities, target_temp, temp, temp_delay_time, timestep, n_atoms);
+            barostat(positions, pressure_delay_time, timestep, target_pressure, iso_compress, pressure, n_atoms, &lattice_constant);
+        }
        
 
 
@@ -1329,9 +1335,9 @@ run(
     //task1(n_atoms, N);
     //task2(n_atoms, N, simulation_mass);
     //task2_b(n_atoms, N, simulation_mass);
-    task3(n_atoms, N, simulation_mass);
+    //task3(n_atoms, N, simulation_mass);
     //task4(n_atoms, N, simulation_mass);
-    //task4_melt(n_atoms, N, simulation_mass);
+    task4_melt(n_atoms, N, simulation_mass);
     //task5a(n_atoms, N, simulation_mass);
     //task5b(n_atoms, N, simulation_mass);
     //task6(n_atoms, N, simulation_mass);
