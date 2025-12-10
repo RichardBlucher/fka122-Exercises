@@ -389,9 +389,9 @@ void task2_b(int n_atoms,int N, double simulation_mass)
 }
 
 void task3(int n_atoms,int N, double simulation_mass){
-    const double iso_compress = 0.01385; //GPa^-1 at 300K
+    const double iso_compress =160.218* 0.01385; //Å^3/eV at 300K
     const double target_temp = 500.0 + 273.15; //Kelvin
-    const double target_pressure = 0.0001; // GPa
+    const double target_pressure = 0.0001/160.218; // eV/Å^3
     const double boltzmann = 8.617333262145e-5; //eV
     const double temp_delay_time = 50.0;
     const double pressure_delay_time = 0.1;
@@ -532,9 +532,9 @@ void task3(int n_atoms,int N, double simulation_mass){
 }
 
 void task4(int n_atoms,int N, double simulation_mass){
-    const double iso_compress = 0.01385; //GPa^-1 at 300K
+    const double iso_compress =160.218* 0.01385; //Å^3/eV at 300K
     const double target_temp = 700.0 + 273.15; //Kelvin
-    const double target_pressure = 0.0001; // GPa
+    const double target_pressure = 0.0001/160.218; // eV/Å^3
     const double boltzmann = 8.617333262145e-5; //eV
     const double temp_delay_time = 50.0;
     const double pressure_delay_time = 0.1;
@@ -673,9 +673,9 @@ void task4(int n_atoms,int N, double simulation_mass){
 }
 
 void task4_melt(int n_atoms,int N, double simulation_mass){
-    const double iso_compress = 0.01385; //GPa^-1 at 300K
+    const double iso_compress =160.218* 0.01385; //Å^3/eV at 300K
     double target_temp = 1200.0 + 273.15; //Kelvin
-    const double target_pressure = 0.0001; // GPa
+    const double target_pressure = 0.0001/160.218; // eV/Å^3
     const double boltzmann = 8.617333262145e-5; //eV
     const double temp_delay_time = 50.0;
     const double pressure_delay_time = 0.1;
@@ -817,9 +817,9 @@ void task4_melt(int n_atoms,int N, double simulation_mass){
 }
 
 void task5a(int n_atoms,int N, double simulation_mass){
-    const double iso_compress = 0.01385; //GPa^-1 at 300K
+    const double iso_compress =160.218* 0.01385; //Å^3/eV at 300K
     const double target_temp = 500.0 + 273.15; //Kelvin
-    const double target_pressure = 0.0001; // GPa
+    const double target_pressure = 0.0001/160.218; // eV/Å^3
     const double boltzmann = 8.617333262145e-5; //eV
     const double temp_delay_time = 50.0;
     const double pressure_delay_time = 0.1;
@@ -971,10 +971,10 @@ void task5a(int n_atoms,int N, double simulation_mass){
 }
 
 void task5b(int n_atoms,int N, double simulation_mass){
-    const double iso_compress = 0.01385; //GPa^-1 at 300K
+    const double iso_compress =160.218* 0.01385; //Å^3/eV at 300K
     double target_temp = 1200.0 + 273.15; //Kelvin
     const double target_temp2 = 700 +273.15; //Kelvin
-    const double target_pressure = 0.0001; // GPa
+    const double target_pressure = 0.0001/160.218; // eV/Å^3
     const double boltzmann = 8.617333262145e-5; //eV
     const double temp_delay_time = 50.0;
     const double pressure_delay_time = 0.1;
@@ -1132,10 +1132,10 @@ void task5b(int n_atoms,int N, double simulation_mass){
 
 
 void task6(int n_atoms,int N, double simulation_mass){
-    const double iso_compress = 0.01385; //GPa^-1 at 300K
+    const double iso_compress =160.218* 0.01385; //Å^3/eV at 300K
     double target_temp = 1200.0 + 273.15; //Kelvin
     const double target_temp2 = 700+273.15; //Kelvin
-    const double target_pressure = 0.0001; // GPa
+    const double target_pressure = 0.0001/160.218; // eV/Å^3
     const double boltzmann = 8.617333262145e-5; //eV
     const double temp_delay_time = 50.0;
     const double pressure_delay_time = 0.1;
